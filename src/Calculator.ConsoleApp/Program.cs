@@ -10,28 +10,40 @@ Console.CancelKeyPress += (_, _) =>
 // Configure the calculator services
 var serviceProvider = new ServiceCollection()
     .AddStringCalculatorServices()
+    .AddTransient<Actions>()
     .BuildServiceProvider();
 
-// Resolve the calculator factory
-var calculatorFactory = serviceProvider.GetService<Func<string?, ExpressionCalculator>>();
+Console.Clear();
+
+Console.WriteLine("Options:");
+Console.WriteLine("A. Add (default)");
+Console.WriteLine("S. Subtract");
+Console.WriteLine("M. Multiply");
+Console.WriteLine("D. Divide");
+Console.WriteLine("C. Change alternate delimiter");
+Console.WriteLine();
+
+var actions = serviceProvider.GetService<Actions>();
 
 // Run the string calculator
 while (true)
 {
-    Console.WriteLine("Enter a list of numbers separated by commas:");
-    string? input = Console.ReadLine();
+    Console.Write("Select an option (Ctrl+C to quit): ");
+    string key = Console.ReadKey().KeyChar.ToString().ToLower();
     
-    Console.Write("Choose an operation: (A)dd (default), (S)ubtract, (M)ultiply, or (D)ivide: ");
-    string? operation = Console.ReadLine()?.Trim().ToLower();
+    Console.WriteLine();
+
+    // Perform the requested action
+    switch (key)
+    {
+        case "a":
+        case "s":
+        case "m":
+        case "d":
+            actions!.PerformOperation(key); break;
+        case "c": actions!.PromptForDelimiter(); break;
+        default: actions!.PerformOperation("a"); break;
+    }
     
-    try
-    {
-        var calc = calculatorFactory!(operation);
-        string result = calc.Calculate(input);
-        Console.WriteLine($"Result: {result}\n");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-    }
+    Console.WriteLine();
 }

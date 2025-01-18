@@ -39,6 +39,15 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
     }
 
     [Fact]
+    public void Calculate_WithAlternateDelimiter_ShouldReturnCorrectResult()
+    {
+        var calc = new ExpressionCalculator(new Subtraction(),
+            new CalculatorOptions { DefaultDelimiters = [',', '!'] });
+        
+        Assert.Equal("4-3-2 = -1", calc.Calculate("4,3!2"));
+    }
+
+    [Fact]
     public void Calculate_DivideNumberByZero_ShouldThrowDivideByZeroException()
     {
         Assert.Throws<DivideByZeroException>(() => fixture.DivisionCalculator.Calculate("10,0"));
@@ -49,4 +58,11 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
     {
         Assert.Throws<ArgumentNullException>(() => fixture.AdditionCalculator.Calculate(null));
     }
+
+    [Fact]
+     public void AlternateDelimiter_WhenSetToNumber_ShouldThrowArgumentException()
+     {
+         Assert.Throws<ArgumentException>(() =>
+             new ExpressionCalculator(new Addition(), new CalculatorOptions { DefaultDelimiters = [',', '0'] }));
+     }
 }

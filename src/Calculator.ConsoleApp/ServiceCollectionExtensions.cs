@@ -14,17 +14,17 @@ public static class ServiceCollectionExtensions
             .AddTransient<Multiplication>()
             .AddTransient<Division>()
             
-            // Register factory for calculators
-            .AddTransient<Func<string, ExpressionCalculator>>(provider => operation =>
+            // Register calculator options
+            .AddSingleton<CalculatorOptions>()
+            
+            // Register the CalculatorFactory
+            .AddTransient<CalculatorFactory>()
+            
+            // Register factory delegate for calculators
+            .AddTransient<Func<string, ExpressionCalculator>>(provider =>
             {
-                return operation switch
-                {
-                    "add" or "a" => new ExpressionCalculator(provider.GetService<Addition>()),
-                    "subtract" or "s" => new ExpressionCalculator(provider.GetService<Subtraction>()),
-                    "multiply" or "m" => new ExpressionCalculator(provider.GetService<Multiplication>()),
-                    "divide" or "d" => new ExpressionCalculator(provider.GetService<Division>()),
-                    _ => new ExpressionCalculator(provider.GetService<Addition>()),
-                };
+                var factory = provider.GetService<CalculatorFactory>();
+                return operation => factory!.Create(operation);
             });
     }
 }
