@@ -20,9 +20,6 @@ public class ExpressionCalculator
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        if (input.Count(c => c == ',') > 1)
-            throw new FormatException("The expression currently supports a maximum of 2 numbers");
-
         return input.Split(',').Select(num => Int32.TryParse(num, out int result) ? result : 0L);
     }
 }

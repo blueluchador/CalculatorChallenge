@@ -14,10 +14,10 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
     [Fact]
     public void Calculate_Numbers_ShouldReturnCorrectResult()
     {
-        Assert.Equal("1+500 = 501", fixture.AdditionCalculator.Calculate("1,500"));
-        Assert.Equal("1-500 = -499", fixture.SubtractionCalculator.Calculate("1,500"));
-        Assert.Equal("4*-3 = -12", fixture.MultiplicationCalculator.Calculate("4,-3"));
-        Assert.Equal("1/500 = 0.0020", fixture.DivisionCalculator.Calculate("1,500"));
+        Assert.Equal("1+50 = 51", fixture.AdditionCalculator.Calculate("1,50"));
+        Assert.Equal("1-500-10 = -509", fixture.SubtractionCalculator.Calculate("1,500,10"));
+        Assert.Equal("4*-3*2*1 = -24", fixture.MultiplicationCalculator.Calculate("4,-3,2,1"));
+        Assert.Equal("500/2/2/2/2 = 31.2500", fixture.DivisionCalculator.Calculate("500,2,2,2,2"));
     }
 
     [Fact]
@@ -48,11 +48,5 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
     public void Calculate_WhenInputIsNull_ShouldThrowArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>(() => fixture.AdditionCalculator.Calculate(null));
-    }
-
-    [Fact]
-    public void Calculate_WhenInputExceedsTheMaximum_ShouldThrowFormatException()
-    {
-        Assert.Throws<FormatException>(() => fixture.AdditionCalculator.Calculate("1,2,3"));
     }
 }
