@@ -10,40 +10,45 @@ Console.CancelKeyPress += (_, _) =>
 // Configure the calculator services
 var serviceProvider = new ServiceCollection()
     .AddStringCalculatorServices()
-    .AddTransient<Actions>()
+    .AddTransient<CalculatorActions>()
     .BuildServiceProvider();
 
 Console.Clear();
 
 Console.WriteLine("Options:");
-Console.WriteLine("A - Add (default)");
-Console.WriteLine("S - Subtract");
-Console.WriteLine("M - Multiply");
-Console.WriteLine("D - Divide");
-Console.WriteLine("C - Change alternate delimiter");
+Console.WriteLine("+ - Add (default)");
+Console.WriteLine("- - Subtract");
+Console.WriteLine("* - Multiply");
+Console.WriteLine("/ - Divide");
+Console.WriteLine("A - Set alternate delimiter");
+Console.WriteLine("N - Allow negative numbers");
+Console.WriteLine("X - Set max number");
 Console.WriteLine();
 
-var actions = serviceProvider.GetService<Actions>();
+var calcActions = serviceProvider.GetService<CalculatorActions>();
+if (calcActions == null) throw new Exception("Calculator actions not found!");
 
 // Run the string calculator
 while (true)
 {
     Console.Write("Select an option (Ctrl+C to quit): ");
-    string key = Console.ReadKey().KeyChar.ToString().ToLower();
+    string key = Console.ReadKey(intercept: true).KeyChar.ToString().ToLower();
     
     Console.WriteLine();
 
     // Perform the requested action
-    switch (key)
+    Action action = key switch
     {
-        case "a":
-        case "s":
-        case "m":
-        case "d":
-            actions!.PerformOperation(key); break;
-        case "c": actions!.PromptForDelimiter(); break;
-        default: actions!.PerformOperation("a"); break;
-    }
+        "+" or "=" => () => calcActions.PerformOperation(Operations.Add),
+        "-" => () => calcActions.PerformOperation(Operations.Subtract),
+        "*" or "8" => () => calcActions.PerformOperation(Operations.Multiply),
+        "/" => () => calcActions.PerformOperation(Operations.Divide),
+        "a" => () => calcActions.PromptForDelimiter(),
+        "n" => () => calcActions.PromptForAllowNegatives(),
+        "x" => () => calcActions.PromptForMaxNumber(),
+        _ => () => calcActions.PerformOperation("Add"),
+    };
+    action();
     
     Console.WriteLine();
 }

@@ -11,10 +11,10 @@ public class CalculatorFactory(IServiceProvider provider)
         
         return operation switch
         {
-            "Add" => new ExpressionCalculator(provider.GetService<Addition>(), options),
-            "Subtract" => new ExpressionCalculator(provider.GetService<Subtraction>(), options),
-            "Multiply" => new ExpressionCalculator(provider.GetService<Multiplication>(), options),
-            "Divide" => new ExpressionCalculator(provider.GetService<Division>(), options),
+            Operations.Add => new ExpressionCalculator(provider.GetService<Addition>(), options),
+            Operations.Subtract => new ExpressionCalculator(provider.GetService<Subtraction>(), options),
+            Operations.Multiply => new ExpressionCalculator(provider.GetService<Multiplication>(), options),
+            Operations.Divide => new ExpressionCalculator(provider.GetService<Division>(), options),
             _ => new ExpressionCalculator(provider.GetService<Addition>(), options),
         };
     }

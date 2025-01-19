@@ -28,12 +28,22 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
     }
 
     [Fact]
-    public void Calculate_WhenNegativeNumbersNotAllowed_ShouldThrowException()
+    public void Calculate_WhenNegativeNumbersNotAllowed_ShouldThrowFormatException()
     {
         var calc = new ExpressionCalculator(new Multiplication(),
             new CalculatorOptions { AllowNegativeNumbers = false });
-        var e = Assert.Throws<ArgumentException>(() => calc.Calculate("4,-3,2,-1"));
+        var e = Assert.Throws<FormatException>(() => calc.Calculate("4,-3,2,-1"));
         Assert.Equal("Negative numbers are not allowed: -3,-1", e.Message);
+    }
+
+    [Fact]
+    public void Calculate_WhenNumberIsGreaterThanMax_ShouldBeIgnored()
+    {
+        var calc = new ExpressionCalculator(new Division(),
+            new CalculatorOptions { MaxNumber = 500 });
+        
+        Assert.Equal("0/2/5/10 = 0.0000", calc.Calculate("1000,2,5,10"));
+        Assert.Equal("2+0+6 = 8", fixture.AdditionCalculator.Calculate("2,1001,6"));
     }
 
     [Fact]
@@ -75,10 +85,17 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
         Assert.Throws<ArgumentNullException>(() => fixture.AdditionCalculator.Calculate(null));
     }
 
-    [Fact]
-     public void AlternateDelimiter_WhenSetToNumber_ShouldThrowArgumentException()
+     [Fact]
+     public void AlternateDelimiter_WhenSetToDigit_ShouldThrowArgumentException()
      {
          Assert.Throws<ArgumentException>(() =>
              new ExpressionCalculator(new Addition(), new CalculatorOptions { DefaultDelimiters = [',', '0'] }));
+     }
+     
+     [Fact]
+     public void MaxNumber_WhenSetToLessThanOne_ShouldThrowArgumentException()
+     {
+         Assert.Throws<ArgumentException>(() =>
+             new ExpressionCalculator(new Addition(), new CalculatorOptions { MaxNumber = 0 }));
      }
 }

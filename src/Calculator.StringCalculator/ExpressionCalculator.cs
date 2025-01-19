@@ -14,6 +14,9 @@ public class ExpressionCalculator
         
         if (_options.DefaultDelimiters.Any(Char.IsDigit))
             throw new ArgumentException("Delimiters cannot be a number.");
+        
+        if (_options.MaxNumber < 1)
+            throw new ArgumentException("Max number cannot be less than 1.");
     }
 
     public string Calculate(string? input)
@@ -22,17 +25,19 @@ public class ExpressionCalculator
         return $"{String.Join(_operation.DisplayOperator, numbers)} = {_operation.Calculate(numbers)}";
     }
 
-    private IEnumerable<long> ParseNumbers(string? input)
+    private List<long> ParseNumbers(string? input)
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        var numbers = input.Split(_options.DefaultDelimiters)
-            .Select(num => Int32.TryParse(num, out int result) ? result : 0L);
+        var numbers = input.Split(_options.DefaultDelimiters).Select(n =>
+        {
+            long num = Int32.TryParse(n, out int result) ? result : 0L;
+            return num > _options.MaxNumber ? 0 : num;
+        }).ToList();
+        
+        ValidateNumbers(numbers);
 
-        long[] numsArray = numbers as long[] ?? numbers.ToArray();
-        ValidateNumbers(numsArray);
-
-        return numsArray;
+        return numbers;
     }
     
     private void ValidateNumbers(IEnumerable<long> numbers)
@@ -43,7 +48,7 @@ public class ExpressionCalculator
         long[] negativesArray = negatives as long[] ?? negatives.ToArray();
         if (negativesArray.Length != 0)
         {
-            throw new ArgumentException($"Negative numbers are not allowed: {String.Join(',', negativesArray)}");
+            throw new FormatException($"Negative numbers are not allowed: {String.Join(',', negativesArray)}");
         }
     }
 }
