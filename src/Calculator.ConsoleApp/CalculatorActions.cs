@@ -4,25 +4,43 @@ namespace Calculator.ConsoleApp;
 
 public class CalculatorActions(CalculatorFactory calculatorFactory, CalculatorOptions options)
 {
+    public string PromptForSelection()
+    {
+        Console.WriteLine("Options:");
+        Console.WriteLine("+ - Add (default)");
+        Console.WriteLine("- - Subtract");
+        Console.WriteLine("* - Multiply");
+        Console.WriteLine("/ - Divide");
+        Console.WriteLine("A - Set alternate delimiter");
+        Console.WriteLine("N - Allow negative numbers");
+        Console.WriteLine("X - Set max number");
+        Console.WriteLine();
+        
+        Console.Write("Select an option (Ctrl+C to quit): ");
+        string key = Console.ReadKey(intercept: true).KeyChar.ToString().ToLower();
+    
+        Console.WriteLine();
+
+        return key;
+    }
+    
     public void PerformOperation(string operation)
     {
         Console.WriteLine($"{operation}: (type 'done' to calculate)");
-    
-        string input = "";
-        Console.Write("> ");
-        string? line = Console.ReadLine();
-        while (line?.Trim().ToLower() != "done")
+
+        var lines = new List<string>();
+        string line;
+        while ((line = Prompt("> ")).ToLower() != "done")
         {
-            input += line + '\n';
-            Console.Write("> ");
-            line = Console.ReadLine();
+            lines.Add(line);
         }
-        input = input.TrimEnd('\n');
+
+        string input = String.Join('\n', lines);
 
         try
         {
-            var calc = calculatorFactory.Create(operation);
-            string result = calc.Calculate(input);
+            var calculator = calculatorFactory.Create(operation);
+            string result = calculator.Calculate(input);
             Console.WriteLine($"Result: {result}");
         }
         catch (Exception ex)
@@ -33,35 +51,33 @@ public class CalculatorActions(CalculatorFactory calculatorFactory, CalculatorOp
 
     public void PromptForDelimiter()
     {
-        Console.Write("> Enter alternate delimiter: ");
-        string? delimiter = Console.ReadLine()?.Trim();
+        string input = Prompt("> Enter alternate delimiter: ");
 
-        if (delimiter is "" or null)
+        if (input == "")
         {
             Console.WriteLine("Error: No delimiter provided.");
             return;
         }
 
-        if (delimiter.Length != 1)
+        if (input.Length != 1)
         {
-            Console.WriteLine("Error: The delimiter must be one character.");
+            Console.WriteLine("Error: The delimiter must be a single character.");
             return;
         }
 
-        if (Char.IsDigit(delimiter[0]))
+        if (Char.IsDigit(input[0]))
         {
             Console.WriteLine("Error: The delimiter cannot be a number.");
             return;
         }
         
-        options.DefaultDelimiters[1] = delimiter[0];
+        options.DefaultDelimiters[1] = input[0];
         Console.WriteLine($"Delimiters: [{String.Join(" ", options.DefaultDelimiters)}]");
     }
 
     public void PromptForAllowNegatives()
     {
-        Console.Write("> Allow negative numbers (y/n): ");
-        string? input = Console.ReadLine()?.Trim().ToLower();
+        string input = Prompt("> Allow negative numbers (y/n): ").ToLower();
 
         if (input is not ("y" or "n"))
         {
@@ -74,10 +90,9 @@ public class CalculatorActions(CalculatorFactory calculatorFactory, CalculatorOp
 
     public void PromptForMaxNumber()
     {
-        Console.Write("> Enter the max number: ");
-        string? input = Console.ReadLine()?.Trim();
+        string input = Prompt("> Enter the max number: ");
 
-        if (input is "" or null)
+        if (input == "")
         {
             Console.WriteLine("Error: No max number provided.");
             return;
@@ -96,5 +111,11 @@ public class CalculatorActions(CalculatorFactory calculatorFactory, CalculatorOp
         
         options.MaxNumber = maxNumber;
         Console.WriteLine($"Max number: {options.MaxNumber}");
+    }
+
+    private static string Prompt(string message = "")
+    {
+        Console.Write(message);
+        return Console.ReadLine()?.Trim() ?? String.Empty;
     }
 }
