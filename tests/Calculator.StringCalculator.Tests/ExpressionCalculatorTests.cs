@@ -32,7 +32,8 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
     {
         var calc = new ExpressionCalculator(new Multiplication(),
             new CalculatorOptions { AllowNegativeNumbers = false });
-        Assert.Throws<ArgumentException>(() => calc.Calculate("4,-3,2,1"));
+        var e = Assert.Throws<ArgumentException>(() => calc.Calculate("4,-3,2,-1"));
+        Assert.Equal("Negative numbers are not allowed: -3,-1", e.Message);
     }
 
     [Fact]
