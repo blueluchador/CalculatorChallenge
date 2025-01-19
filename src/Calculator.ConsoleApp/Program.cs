@@ -16,11 +16,11 @@ var serviceProvider = new ServiceCollection()
 Console.Clear();
 
 Console.WriteLine("Options:");
-Console.WriteLine("A. Add (default)");
-Console.WriteLine("S. Subtract");
-Console.WriteLine("M. Multiply");
-Console.WriteLine("D. Divide");
-Console.WriteLine("C. Change alternate delimiter");
+Console.WriteLine("A - Add (default)");
+Console.WriteLine("S - Subtract");
+Console.WriteLine("M - Multiply");
+Console.WriteLine("D - Divide");
+Console.WriteLine("C - Change alternate delimiter");
 Console.WriteLine();
 
 var actions = serviceProvider.GetService<Actions>();

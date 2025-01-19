@@ -26,7 +26,24 @@ public class ExpressionCalculator
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        return input.Split(_options.DefaultDelimiters)
+        var numbers = input.Split(_options.DefaultDelimiters)
             .Select(num => Int32.TryParse(num, out int result) ? result : 0L);
+
+        long[] numsArray = numbers as long[] ?? numbers.ToArray();
+        ValidateNumbers(numsArray);
+
+        return numsArray;
+    }
+    
+    private void ValidateNumbers(IEnumerable<long> numbers)
+    {
+        if (_options.AllowNegativeNumbers) return;
+        
+        var negatives = numbers.Where(num => num < 0);
+        long[] negativesArray = negatives as long[] ?? negatives.ToArray();
+        if (negativesArray.Length != 0)
+        {
+            throw new ArgumentException($"Negative numbers are not allowed: {String.Join(',', negativesArray)}");
+        }
     }
 }

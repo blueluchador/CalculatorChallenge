@@ -16,8 +16,23 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
     {
         Assert.Equal("1+50 = 51", fixture.AdditionCalculator.Calculate("1,50"));
         Assert.Equal("1-500-10 = -509", fixture.SubtractionCalculator.Calculate("1,500,10"));
-        Assert.Equal("4*-3*2*1 = -24", fixture.MultiplicationCalculator.Calculate("4,-3,2,1"));
         Assert.Equal("500/2/2/2/2 = 31.2500", fixture.DivisionCalculator.Calculate("500,2,2,2,2"));
+    }
+    
+    [Fact]
+    public void Calculate_WhenNegativeNumbersAllowed_ShouldReturnCorrectResult()
+    {
+        var calc = new ExpressionCalculator(new Multiplication(),
+            new CalculatorOptions { AllowNegativeNumbers = true });
+        Assert.Equal("4*-3*2*1 = -24", calc.Calculate("4,-3,2,1"));
+    }
+
+    [Fact]
+    public void Calculate_WhenNegativeNumbersNotAllowed_ShouldThrowException()
+    {
+        var calc = new ExpressionCalculator(new Multiplication(),
+            new CalculatorOptions { AllowNegativeNumbers = false });
+        Assert.Throws<ArgumentException>(() => calc.Calculate("4,-3,2,1"));
     }
 
     [Fact]
