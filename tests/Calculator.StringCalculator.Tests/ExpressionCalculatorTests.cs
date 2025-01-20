@@ -65,10 +65,17 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
     }
 
     [Fact]
+    public void Calculate_CustomSingleCharDelimiter_ShouldReturnCorrectResult()
+    {
+        Assert.Equal("2+5 = 7", fixture.AdditionCalculator.Calculate("//#\n2#5"));
+        Assert.Equal("2+0+100 = 102", fixture.AdditionCalculator.Calculate("//,\n2,ff,100"));
+    }
+
+    [Fact]
     public void Calculate_WithAlternateDelimiter_ShouldReturnCorrectResult()
     {
         var calc = new ExpressionCalculator(new Subtraction(),
-            new CalculatorOptions { DefaultDelimiters = [',', '!'] });
+            new CalculatorOptions { DefaultDelimiters = [",", "!"] });
         
         Assert.Equal("4-3-2 = -1", calc.Calculate("4,3!2"));
     }
@@ -89,7 +96,7 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
      public void AlternateDelimiter_WhenSetToDigit_ShouldThrowArgumentException()
      {
          Assert.Throws<ArgumentException>(() =>
-             new ExpressionCalculator(new Addition(), new CalculatorOptions { DefaultDelimiters = [',', '0'] }));
+             new ExpressionCalculator(new Addition(), new CalculatorOptions { DefaultDelimiters = [",", "0"] }));
      }
      
      [Fact]

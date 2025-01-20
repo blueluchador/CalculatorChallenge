@@ -71,7 +71,7 @@ public class CalculatorActions(CalculatorFactory calculatorFactory, CalculatorOp
             return;
         }
         
-        options.DefaultDelimiters[1] = input[0];
+        options.DefaultDelimiters[1] = input;
         Console.WriteLine($"Delimiters: [{String.Join(" ", options.DefaultDelimiters)}]");
     }
 
