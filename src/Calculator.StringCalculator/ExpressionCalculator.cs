@@ -50,17 +50,24 @@ public partial class ExpressionCalculator
         string numbers = input;
         if (!input.StartsWith("//")) return (_options.DefaultDelimiters, numbers);
         
+        int newlineIndex = input.IndexOf('\n');
+        if (newlineIndex == -1 || newlineIndex + 1 >= input.Length)
+            throw new FormatException($"Calculate expression is missing in input: {input}");
+
+        string delimitersPart = input[2..newlineIndex];
+        string expressionPart = input[(newlineIndex + 1)..];
+        
         return input switch
         {
-            _ when CharDelimiterRegex().Match(input) is { Success: true } charDelimiterMatch =>
+            _ when CustomCharDelimiterRegex().Match(input) is { Success: true } customCharDelimiterMatch =>
             (
-                [.._options.DefaultDelimiters, charDelimiterMatch.Groups[1].Value],
-                charDelimiterMatch.Groups[2].Value
+                [.._options.DefaultDelimiters, customCharDelimiterMatch.Groups[1].Value],
+                customCharDelimiterMatch.Groups[2].Value
             ),
-            _ when StringDelimiterRegex().Match(input) is { Success: true } stringDelimiterMatch =>
+            _ when CustomDelimiterListRegex().Match(delimitersPart) is { Success: true } =>
             (
-                [.._options.DefaultDelimiters, stringDelimiterMatch.Groups[1].Value],
-                stringDelimiterMatch.Groups[2].Value
+                GetDelimiterList(delimitersPart, _options.DefaultDelimiters).ToArray(),
+                expressionPart
             ),
             _ => throw new FormatException($"Custom delimiter format is invalid or missing expression: {input}")
         };
@@ -77,10 +84,29 @@ public partial class ExpressionCalculator
             throw new FormatException($"Negative numbers are not allowed: {String.Join(',', negativesArray)}");
         }
     }
+    
+    private static IEnumerable<string> GetDelimiterList(string delimitersPart, string[] delimiters)
+    {
+        foreach (string d in delimiters)
+        {
+            yield return d; 
+        }
+        
+        var matches = DelimiterListRegex().Matches(delimitersPart);
+        foreach (Match match in matches)
+        {
+            string delimiter = match.Groups[1].Value;
+            if (delimiter == String.Empty) throw new FormatException("Delimiters cannot be empty.");
+            yield return delimiter;
+        }
+    }
 
     [GeneratedRegex(@"^//(.)\n(.+)")]
-    private static partial Regex CharDelimiterRegex();
+    private static partial Regex CustomCharDelimiterRegex();
     
-    [GeneratedRegex(@"//\[(.*?)\]\n(.+)")]
-    private static partial Regex StringDelimiterRegex();
+    [GeneratedRegex(@"^(\[[^\[\]]*\])+$")]
+    private static partial Regex CustomDelimiterListRegex();
+    
+    [GeneratedRegex(@"\[(.*?)\]")]
+    private static partial Regex DelimiterListRegex();
 }

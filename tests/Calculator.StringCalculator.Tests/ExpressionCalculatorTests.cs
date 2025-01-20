@@ -72,20 +72,22 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
     }
     
     [Fact]
-    public void Calculate_WhenCustomStringDelimiter_ShouldReturnCorrectResult()
+    public void Calculate_WhenCustomDelimiterList_ShouldReturnCorrectResult()
     {
         Assert.Equal("11+22+33 = 66", fixture.AdditionCalculator.Calculate("//[***]\n11***22***33"));
-        Assert.Equal("1*2*3 = 6", fixture.MultiplicationCalculator.Calculate("//[**]\n1**2,3"));
+        Assert.Equal("11+22+0+33+44 = 110", fixture.AdditionCalculator.Calculate("//[*][!!][r9r]\n11r9r22*hh*33!!44"));
         Assert.Equal("10*2*3 = 60", fixture.MultiplicationCalculator.Calculate("//[!]\n10!2!3"));
     }
 
     [Fact]
     public void Calculate_WhenCustomFormatInvalid_ThrowsFormatException()
     {
-        Assert.Throws<FormatException>(() => fixture.AdditionCalculator.Calculate("//##\n2##5"));
-        Assert.Throws<FormatException>(() => fixture.AdditionCalculator.Calculate("//[***\n11***22***33"));
-        Assert.Throws<FormatException>(() => fixture.AdditionCalculator.Calculate("//[***]\n"));
-        Assert.Throws<FormatException>(() => fixture.AdditionCalculator.Calculate("//[***]"));
+         Assert.Throws<FormatException>(() => fixture.AdditionCalculator.Calculate("//##\n2##5"));
+         Assert.Throws<FormatException>(() => fixture.AdditionCalculator.Calculate("//[***\n11***22***33"));
+         Assert.Throws<FormatException>(() =>
+             fixture.AdditionCalculator.Calculate("//[*][!!][r]9r]\n11r9r22*hh*33!!44")); 
+         Assert.Throws<FormatException>(() => fixture.AdditionCalculator.Calculate("//[***]\n"));
+         Assert.Throws<FormatException>(() => fixture.AdditionCalculator.Calculate("//[***]"));
     }
 
     [Fact]
