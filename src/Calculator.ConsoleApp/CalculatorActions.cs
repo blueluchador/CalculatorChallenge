@@ -2,35 +2,33 @@ using Calculator.StringCalculator;
 
 namespace Calculator.ConsoleApp;
 
-public class CalculatorActions(CalculatorFactory calculatorFactory, CalculatorOptions options)
+public class CalculatorActions(ICalculatorFactory calculatorFactory, CalculatorOptions options, ICustomConsole console)
 {
     public string PromptForSelection()
     {
-        Console.WriteLine("Options:");
-        Console.WriteLine("+ - Add (default)");
-        Console.WriteLine("- - Subtract");
-        Console.WriteLine("* - Multiply");
-        Console.WriteLine("/ - Divide");
-        Console.WriteLine("A - Set alternate delimiter");
-        Console.WriteLine("N - Allow negative numbers");
-        Console.WriteLine("X - Set max number");
-        Console.WriteLine();
+        console.WriteLine("Options:");
+        console.WriteLine("+ - Add (default)");
+        console.WriteLine("- - Subtract");
+        console.WriteLine("* - Multiply");
+        console.WriteLine("/ - Divide");
+        console.WriteLine("A - Set alternate delimiter");
+        console.WriteLine("N - Allow negative numbers");
+        console.WriteLine("X - Set max number");
+        console.WriteLine();
         
-        Console.Write("Select an option (Ctrl+C to quit): ");
-        string key = Console.ReadKey(intercept: true).KeyChar.ToString().ToLower();
-    
-        Console.WriteLine();
+        string input = console.PromptKey("Select an option (Ctrl+C to quit): ").ToString().ToLower();
+        console.WriteLine();
 
-        return key;
+        return input;
     }
     
     public void PerformOperation(string operation)
     {
-        Console.WriteLine($"{operation}: (type 'done' to calculate)");
+        console.WriteLine($"{operation}: (type 'done' to calculate)");
 
         var lines = new List<string>();
         string line;
-        while ((line = Prompt("> ")).ToLower() != "done")
+        while (!(line = console.Prompt("> ")).Equals("done", StringComparison.CurrentCultureIgnoreCase))
         {
             lines.Add(line);
         }
@@ -41,43 +39,43 @@ public class CalculatorActions(CalculatorFactory calculatorFactory, CalculatorOp
         {
             var calculator = calculatorFactory.Create(operation);
             string result = calculator.Calculate(input);
-            Console.WriteLine($"Result: {result}");
+            console.WriteLine($"Result: {result}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            console.WriteLine($"Error: {ex.Message}");
         }
     }
 
     public void PromptForDelimiter()
     {
-        string input = Prompt("> Enter alternate delimiter: ");
+        string input = console.Prompt("> Enter alternate delimiter: ");
 
         if (input == "")
         {
-            Console.WriteLine("Error: No delimiter provided.");
+            console.WriteLine("Error: No delimiter provided.");
             return;
         }
 
         if (input.Length != 1)
         {
-            Console.WriteLine("Error: The delimiter must be a single character.");
+            console.WriteLine("Error: The delimiter must be a single character.");
             return;
         }
 
         if (Char.IsDigit(input[0]))
         {
-            Console.WriteLine("Error: The delimiter cannot be a number.");
+            console.WriteLine("Error: The delimiter cannot be a number.");
             return;
         }
         
         options.DefaultDelimiters[1] = input;
-        Console.WriteLine($"Delimiters: [{String.Join(" ", options.DefaultDelimiters)}]");
+        console.WriteLine($"Delimiters: [{String.Join(" ", options.DefaultDelimiters)}]");
     }
 
     public void PromptForAllowNegatives()
     {
-        string input = Prompt("> Allow negative numbers (y/n): ").ToLower();
+        string input = console.Prompt("> Allow negative numbers (y/n): ").ToLower();
 
         if (input is not ("y" or "n"))
         {
@@ -85,37 +83,32 @@ public class CalculatorActions(CalculatorFactory calculatorFactory, CalculatorOp
         }
 
         options.AllowNegativeNumbers = input == "y";
-        Console.WriteLine($"Allow negative numbers: {(options.AllowNegativeNumbers ? "Yes" : "No")}");
+        console.WriteLine($"Allow negative numbers: {(options.AllowNegativeNumbers ? "Yes" : "No")}");
     }
 
     public void PromptForMaxNumber()
     {
-        string input = Prompt("> Enter the max number: ");
+        string input = console.Prompt("> Enter the max number: ");
 
         if (input == "")
         {
-            Console.WriteLine("Error: No max number provided.");
+            console.WriteLine("Error: No max number provided.");
             return;
         }
 
         if (!Int32.TryParse(input, out int maxNumber))
         {
-            Console.WriteLine("Error: The max number is not valid.");
+            console.WriteLine("Error: The max number is not valid.");
             return;
         }
 
         if (maxNumber < 1)
         {
-            Console.WriteLine("Error: The max number cannot be less than 1.");
+            console.WriteLine("Error: The max number cannot be less than 1.");
+            return;
         }
         
         options.MaxNumber = maxNumber;
-        Console.WriteLine($"Max number: {options.MaxNumber}");
-    }
-
-    private static string Prompt(string message = "")
-    {
-        Console.Write(message);
-        return Console.ReadLine()?.Trim() ?? String.Empty;
+        console.WriteLine($"Max number: {options.MaxNumber}");
     }
 }

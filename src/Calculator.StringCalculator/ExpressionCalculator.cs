@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace Calculator.StringCalculator;
 
-public partial class ExpressionCalculator
+public partial class ExpressionCalculator : ICalculator
 {
     private readonly IOperation _operation;
     private readonly CalculatorOptions _options;

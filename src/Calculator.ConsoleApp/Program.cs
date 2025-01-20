@@ -10,6 +10,7 @@ Console.CancelKeyPress += (_, _) =>
 // Configure the calculator services
 var serviceProvider = new ServiceCollection()
     .AddStringCalculatorServices()
+    .AddTransient<ICustomConsole, CustomConsole>()
     .AddTransient<CalculatorActions>()
     .BuildServiceProvider();
 

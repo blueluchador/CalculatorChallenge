@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Calculator.StringCalculator;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,13 +19,17 @@ public static class ServiceCollectionExtensions
             .AddSingleton<CalculatorOptions>()
             
             // Register the CalculatorFactory
-            .AddTransient<CalculatorFactory>()
+            .AddTransient<ICalculatorFactory, CalculatorFactory>()
             
             // Register factory delegate for calculators
-            .AddTransient<Func<string, ExpressionCalculator>>(provider =>
+            .AddTransient<Func<string, ICalculator>>(provider =>
             {
-                var factory = provider.GetService<CalculatorFactory>();
-                return operation => factory!.Create(operation);
+                var factory = provider.GetService<ICalculatorFactory>();
+                return operation =>
+                {
+                    Debug.Assert(factory != null, nameof(factory) + " != null");
+                    return factory.Create(operation);
+                };
             });
     }
 }

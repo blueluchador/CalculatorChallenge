@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Calculator.ConsoleApp;
 
-public class CalculatorFactory(IServiceProvider provider)
+public class CalculatorFactory(IServiceProvider provider) : ICalculatorFactory
 {
-    public ExpressionCalculator Create(string operation)
+    public ICalculator Create(string operation)
     {
         var options = provider.GetRequiredService<CalculatorOptions>();
         

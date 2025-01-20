@@ -108,7 +108,7 @@ public class ExpressionCalculatorTests(CalculatorFixture fixture) : IClassFixtur
     [Fact]
     public void Calculate_WhenInputIsNull_ShouldThrowArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => fixture.AdditionCalculator.Calculate(null));
+        Assert.Throws<ArgumentNullException>(() => fixture.AdditionCalculator.Calculate(null!));
     }
 
      [Fact]
