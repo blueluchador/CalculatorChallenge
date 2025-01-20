@@ -49,11 +49,21 @@ public partial class ExpressionCalculator
     {
         string numbers = input;
         if (!input.StartsWith("//")) return (_options.DefaultDelimiters, numbers);
-
-        var match = SingleCharDelimiterRegex().Match(input);
-        if (!match.Success) throw new FormatException($"Custom delimiter is in an invalid format: {input}");
         
-        return ([.._options.DefaultDelimiters, match.Groups[1].Value], match.Groups[2].Value);
+        return input switch
+        {
+            _ when CharDelimiterRegex().Match(input) is { Success: true } charDelimiterMatch =>
+            (
+                [.._options.DefaultDelimiters, charDelimiterMatch.Groups[1].Value],
+                charDelimiterMatch.Groups[2].Value
+            ),
+            _ when StringDelimiterRegex().Match(input) is { Success: true } stringDelimiterMatch =>
+            (
+                [.._options.DefaultDelimiters, stringDelimiterMatch.Groups[1].Value],
+                stringDelimiterMatch.Groups[2].Value
+            ),
+            _ => throw new FormatException($"Custom delimiter format is invalid or missing expression: {input}")
+        };
     }
     
     private void ValidateNumbers(IEnumerable<long> numbers)
@@ -69,5 +79,8 @@ public partial class ExpressionCalculator
     }
 
     [GeneratedRegex(@"^//(.)\n(.+)")]
-    private static partial Regex SingleCharDelimiterRegex();
+    private static partial Regex CharDelimiterRegex();
+    
+    [GeneratedRegex(@"//\[(.*?)\]\n(.+)")]
+    private static partial Regex StringDelimiterRegex();
 }
